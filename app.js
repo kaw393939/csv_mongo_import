@@ -5,12 +5,14 @@ var express = require('express'),
    http = require('http'),
    csv = require('csv'),
    path = require('path');
-var records = new Array();
+var file = '/contract.txt'; // Place your csv in the root directory and change this var to it's name
+var dbConn = "mongodb://localhost:27017/exampleDb"; // Your database connection string
+var coll = 'samples'; // Name of the collection you are saving to. 
 var app = express();
 var records = [];
 
 csv(records)
-   .from.stream(fs.createReadStream(__dirname + '/contract.txt'), {
+   .from.stream(fs.createReadStream(__dirname + file), {
    columns: true
 })
    .on('record', function (row, index) {
@@ -21,8 +23,8 @@ csv(records)
    .on('end', function (count) {
    var MongoClient = require('mongodb').MongoClient;
    // Connect to the db
-   MongoClient.connect("mongodb://localhost:27017/exampleDb", function (err, db) {
-      var collection = db.collection('sample')
+   MongoClient.connect(dbConn, function (err, db) {
+      var collection = db.collection(coll)
       collection.insert(records, function (err, doc) {
          console.log(doc);
       });
